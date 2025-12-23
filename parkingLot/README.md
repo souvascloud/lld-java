@@ -14,11 +14,11 @@ Extensible design - Unit testing - UML & sequence diagrams
 
 ##  Features
 
--   Supports multiple floors and parking slots\
--   Handles different vehicle types: **Bike, Car, Truck**\
--   Allocates nearest available slot based on type\
--   Issues parking tickets on entry\
--   Calculates parking fee on exit using **Strategy Pattern**\
+-   Supports multiple floors and parking slots
+-   Handles different vehicle types: **Bike, Car, Truck**
+-   Allocates nearest available slot based on type
+-   Issues parking tickets on entry
+-   Calculates parking fee on exit using **Strategy Pattern**
 -   Frees slot after exit and allows reuse\
 -   Handles edge cases like:
     -   Parking lot full
@@ -29,11 +29,11 @@ Extensible design - Unit testing - UML & sequence diagrams
 
 ##  Design Highlights
 
--   **SOLID principles** applied\
--   **Strategy Pattern** for pricing logic\
--   **Encapsulation** of domain rules inside entities\
--   **Service layer** (`ParkingManager`) for orchestration\
--   **Immutable domain objects** where applicable\
+-   **SOLID principles** applied
+-   **Strategy Pattern** for pricing logic
+-   **Encapsulation** of domain rules inside entities
+-   **Service layer** (`ParkingManager`) for orchestration
+-   **Immutable domain objects** where applicable
 -   Easily extensible for new vehicle types and pricing rules
 
 ------------------------------------------------------------------------
@@ -78,12 +78,13 @@ Extensible design - Unit testing - UML & sequence diagrams
 ##  UML & Sequence Diagrams
 
 ### Class Diagram
+![Capture](https://github.com/user-attachments/assets/944a555c-87ae-429d-9f94-6e04cac00b9f)
 
-![Class Diagram]
+
 
 ### Sequence Diagram
 
-![Sequence Diagram]
+![parking-sequnece](https://github.com/user-attachments/assets/c6d62eaa-87ad-41f0-a479-704c8c3e552b)
 
 ------------------------------------------------------------------------
 
@@ -108,11 +109,11 @@ Or simply run `Main` from IntelliJ.
 ##  Unit Tests
 
 Unit tests are written using **JUnit 5** and cover: - Normal parking
-flow\
-- Exit & fee calculation\
-- Slot reuse after exit\
-- Parking lot full scenario\
-- Double exit / invalid ticket handling\
+flow
+- Exit & fee calculation
+- Slot reuse after exit
+- Parking lot full scenario
+- Double exit / invalid ticket handling
 - Slot state cleanup
 
 Run directly from IntelliJ using the test runner.
@@ -121,22 +122,22 @@ Run directly from IntelliJ using the test runner.
 
 ##  Edge Cases Handled
 
--    Parking when no slots available\
--    Reusing the same ticket for exit\
--    Invalid / unknown tickets\
--    Null inputs\
--    Minimum fee even for short duration\
+-    Parking when no slots available
+-    Reusing the same ticket for exit
+-    Invalid  unknown tickets
+-    Null inputs
+-    Minimum fee even for short duration
 -    Slot freed after exit
 
 ------------------------------------------------------------------------
 
 ##  Possible Extensions
 
--   REST API using Spring Boot\
--   Persistent storage (DB)\
--   Multiple parking lots\
--   Concurrency handling\
--   Dynamic pricing rules\
+-   REST API using Spring Boot
+-   Persistent storage (DB)
+-   Multiple parking lots
+-   Concurrency handling
+-   Dynamic pricing rules
 -   Support for reservations
 
 ------------------------------------------------------------------------
@@ -152,7 +153,7 @@ code - Unit testing - Design documentation
 
 ##  Contact
 
-**Author:** Souvanik Saha\ 
+**Author:** Souvanik Saha
 **LinkedIn:** https://www.linkedin.com/in/souvanik-saha-7172a810a/
 
  If you find this helpful, consider giving the repo a star!

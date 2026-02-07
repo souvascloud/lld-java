@@ -7,7 +7,17 @@ package com.souvanik.parkinglot.enums;
  * https://opensource.org/licenses/MIT
  */
 public enum VehicleType {
-    BIKE,
-    CAR,
-    TRUCK
+    BIKE(VehicleSize.SMALL),
+    CAR(VehicleSize.MEDIUM),
+    TRUCK(VehicleSize.LARGE);
+
+    private final VehicleSize size;
+
+    VehicleType(VehicleSize size) {
+        this.size = size;
+    }
+
+    public VehicleSize getSize() {
+        return size;
+    }
 }

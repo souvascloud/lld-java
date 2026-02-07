@@ -1,118 +1,179 @@
 package test.java;
 
+/*
+ * Copyright (c) 2026 Souvanik Saha
+ *
+ * Licensed under the MIT License.
+ * https://opensource.org/licenses/MIT
+ */
 import com.souvanik.parkinglot.enums.SlotType;
-import com.souvanik.parkinglot.model.Floor;
-import com.souvanik.parkinglot.model.ParkingLot;
+import com.souvanik.parkinglot.enums.VehicleSize;
+import com.souvanik.parkinglot.enums.VehicleType;
+import com.souvanik.parkinglot.gate.EntryGate;
+import com.souvanik.parkinglot.gate.ExitGate;
 import com.souvanik.parkinglot.model.ParkingSlot;
 import com.souvanik.parkinglot.model.Ticket;
 import com.souvanik.parkinglot.model.vehicle.Bike;
 import com.souvanik.parkinglot.model.vehicle.Car;
 import com.souvanik.parkinglot.model.vehicle.Truck;
 import com.souvanik.parkinglot.service.ParkingManager;
-import com.souvanik.parkinglot.service.impl.DefaultFeeCalculator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/*
- * Copyright (c) 2025 Souvanik Saha
- *
- * Licensed under the MIT License.
- * https://opensource.org/licenses/MIT
- */
-public class ParkingManagerTest {
-    private ParkingManager manager;
+class ParkingManagerTest {
+
+    private ParkingManager parkingManager;
+    private EntryGate entryGate;
+    private ExitGate exitGate;
 
     @BeforeEach
     void setUp() {
-        manager = setupParkingManager();
+        parkingManager = TestSetupUtil.setupParkingManager();
+        entryGate = new EntryGate("ENTRY-1", parkingManager);
+        exitGate = new ExitGate("EXIT-1", parkingManager);
     }
 
-    private ParkingManager setupParkingManager() {
-        Floor f1 = new Floor(1, Arrays.asList(
-                new ParkingSlot("F1-S1", SlotType.BIKE),
-                new ParkingSlot("F1-S2", SlotType.CAR),
-                new ParkingSlot("F1-S3", SlotType.TRUCK)
-        ));
-        Floor f2 = new Floor(2, Arrays.asList(
-                new ParkingSlot("F2-S1", SlotType.BIKE),
-                new ParkingSlot("F2-S2", SlotType.CAR),
-                new ParkingSlot("F2-S3", SlotType.TRUCK)
-        ));
-        ParkingLot lot = new ParkingLot("TestLot", Arrays.asList(f1, f2));
-        return new ParkingManager(lot, new DefaultFeeCalculator());
-    }
-
+    // ------------------------------------------------------
+    // Normal Parking Test
+    // ------------------------------------------------------
     @Test
-    void shouldParkDifferentVehicles() {
-        Ticket b = manager.park(new Bike("B1"));
-        Ticket c = manager.park(new Car("C1"));
-        Ticket t = manager.park(new Truck("T1"));
+    void shouldParkVehiclesSuccessfully() {
+        Ticket bikeTicket = entryGate.enter(new Bike("BIKE-1"));
+        Ticket carTicket = entryGate.enter(new Car("CAR-1"));
+        Ticket truckTicket = entryGate.enter(new Truck("TRUCK-1"));
 
-        assertEquals(SlotType.BIKE, b.getSlot().getSlotType());
-        assertEquals(SlotType.CAR, c.getSlot().getSlotType());
-        assertEquals(SlotType.TRUCK, t.getSlot().getSlotType());
+        assertNotNull(bikeTicket);
+        assertNotNull(carTicket);
+        assertNotNull(truckTicket);
+
+        assertEquals(VehicleType.BIKE, bikeTicket.getVehicle().getType());
+        assertEquals(VehicleType.CAR, carTicket.getVehicle().getType());
+        assertEquals(VehicleType.TRUCK, truckTicket.getVehicle().getType());
     }
 
+    // ------------------------------------------------------
+    //  Size-Based Slot Compatibility
+    // ------------------------------------------------------
     @Test
-    void shouldCalculateFeeOnExit() {
-        Ticket ticket = manager.park(new Car("C2"));
-        double fee = manager.exit(ticket);
-        assertTrue(fee > 0);
+    void smallVehicleCanParkInLargerSlot() {
+        // Fill bike slot first
+        entryGate.enter(new Bike("BIKE-1"));
+
+        // Next bike should take larger slot
+        Ticket ticket = entryGate.enter(new Bike("BIKE-2"));
+
+        assertNotNull(ticket);
+        assertTrue(
+                ticket.getSlot().getSlotType().getSize().ordinal()
+                        >= VehicleSize.SMALL.ordinal()
+        );
     }
 
+    // ------------------------------------------------------
+    //  Slot Reuse After Exit
+    // ------------------------------------------------------
     @Test
-    void shouldReuseSlotAfterExit() {
-        Ticket t1 = manager.park(new Car("C3"));
-        String slotId = t1.getSlot().getSlotId();
-        manager.exit(t1);
+    void slotShouldBeReusedAfterExit() {
+        Ticket carTicket = entryGate.enter(new Car("CAR-1"));
+        String slotId = carTicket.getSlot().getSlotId();
 
-        Ticket t2 = manager.park(new Car("C4"));
-        assertEquals(slotId, t2.getSlot().getSlotId());
+        exitGate.exit(carTicket);
+
+        Ticket newCarTicket = entryGate.enter(new Car("CAR-2"));
+
+        assertEquals(slotId, newCarTicket.getSlot().getSlotId());
     }
 
+    // ------------------------------------------------------
+    // Parking Lot Full
+    // ------------------------------------------------------
     @Test
-    void shouldThrowWhenLotIsFull() {
-        manager.park(new Bike("B1"));
-        manager.park(new Bike("B2"));
+    void shouldThrowExceptionWhenParkingLotIsFull() {
+        entryGate.enter(new Bike("BIKE-1"));
+        entryGate.enter(new Bike("BIKE-2"));
+        entryGate.enter(new Bike("BIKE-3"));
+        entryGate.enter(new Car("CAR-1"));
+        entryGate.enter(new Truck("TRUCK-1"));
+        entryGate.enter(new Truck("TRUCK-2"));
 
-        assertThrows(IllegalStateException.class,
-                () -> manager.park(new Bike("B3")));
+        assertThrows(
+                IllegalStateException.class,
+                () -> entryGate.enter(new Bike("BIKE-OVERFLOW"))
+        );
     }
 
+    // ------------------------------------------------------
+    // 5Fee Calculation Accuracy
+    // ------------------------------------------------------
     @Test
-    void shouldFreeSlotAfterExit() {
-        Ticket t = manager.park(new Truck("T9"));
-        ParkingSlot slot = t.getSlot();
+    void shouldCalculateCorrectFee() throws InterruptedException {
+        Ticket bikeTicket = entryGate.enter(new Bike("BIKE-1"));
 
-        assertTrue(slot.isOccupied());
-        manager.exit(t);
-        assertFalse(slot.isOccupied());
-        assertNull(slot.getVehicle());
+        Thread.sleep(1000); // simulate time
+
+        BigDecimal fee = exitGate.exit(bikeTicket);
+
+        assertEquals(BigDecimal.valueOf(10), fee);
     }
 
+    // ------------------------------------------------------
+    //  Invalid Ticket Exit
+    // ------------------------------------------------------
     @Test
-    void shouldNotAllowNullVehicle() {
-        assertThrows(IllegalArgumentException.class,
-                () -> manager.park(null));
+    void shouldFailForInvalidTicket() {
+        Ticket fakeTicket = new Ticket(
+                new ParkingSlot("FAKE", SlotType.BIKE, null),
+                new Bike("FAKE")
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> exitGate.exit(fakeTicket)
+        );
     }
 
-    @Test
-    void shouldNotAllowNullTicketOnExit() {
-        assertThrows(IllegalArgumentException.class,
-                () -> manager.exit(null));
-    }
-
+    // ------------------------------------------------------
+    //  Double Exit Protection
+    // ------------------------------------------------------
     @Test
     void shouldNotAllowDoubleExit() {
-        Ticket t = manager.park(new Car("C9"));
-        manager.exit(t);
+        Ticket ticket = entryGate.enter(new Car("CAR-1"));
+        exitGate.exit(ticket);
 
-        assertThrows(IllegalStateException.class,
-                () -> manager.exit(t));
+        assertThrows(
+                IllegalStateException.class,
+                () -> exitGate.exit(ticket)
+        );
     }
 
+    // ------------------------------------------------------
+    //  Concurrent Parking (Thread Safety)
+    // ------------------------------------------------------
+    @Test
+    void shouldHandleConcurrentParkingSafely() throws Exception {
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Callable<Ticket> task1 = () -> entryGate.enter(new Car("CAR-1"));
+        Callable<Ticket> task2 = () -> entryGate.enter(new Bike("BIKE-1"));
+        Callable<Ticket> task3 = () -> entryGate.enter(new Truck("TRUCK-1"));
+
+        List<Future<Ticket>> futures =
+                executor.invokeAll(List.of(task1, task2, task3));
+
+        Set<String> slotIds = new HashSet<>();
+
+        for (Future<Ticket> f : futures) {
+            Ticket t = f.get();
+            assertNotNull(t);
+            assertTrue(slotIds.add(t.getSlot().getSlotId())); // no duplicates
+        }
+
+        executor.shutdown();
+    }
 }

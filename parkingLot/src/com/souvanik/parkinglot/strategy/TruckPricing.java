@@ -1,5 +1,7 @@
 package com.souvanik.parkinglot.strategy;
 
+import java.math.BigDecimal;
+
 /*
  * Copyright (c) 2025 Souvanik Saha
  *
@@ -9,7 +11,7 @@ package com.souvanik.parkinglot.strategy;
 public class TruckPricing implements PricingStrategy {
 
     @Override
-    public double pricePerHour() {
-        return 30.0;
+    public BigDecimal pricePerHour() {
+        return BigDecimal.valueOf(30);
     }
 }

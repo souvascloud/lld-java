@@ -1,5 +1,7 @@
 package com.souvanik.parkinglot.strategy;
 
+import java.math.BigDecimal;
+
 /*
  * Copyright (c) 2025 Souvanik Saha
  *
@@ -7,5 +9,5 @@ package com.souvanik.parkinglot.strategy;
  * https://opensource.org/licenses/MIT
  */
 public interface PricingStrategy {
-    double pricePerHour();
+    BigDecimal pricePerHour();
 }

@@ -2,6 +2,7 @@ package com.souvanik.parkinglot.service;
 
 import com.souvanik.parkinglot.model.Ticket;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /*
@@ -11,5 +12,5 @@ import java.time.LocalDateTime;
  * https://opensource.org/licenses/MIT
  */
 public interface FeeCalculator {
-    double calculateFee(Ticket ticket, LocalDateTime exitTime);
+    BigDecimal calculateFee(Ticket ticket, LocalDateTime exitTime);
 }

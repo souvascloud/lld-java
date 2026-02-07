@@ -14,10 +14,12 @@ public class ParkingSlot {
     private final SlotType slotType;
     private boolean occupied;
     private Vehicle vehicle;
+    private final Floor floor;
 
-    public ParkingSlot(String slotId, SlotType slotType) {
+    public ParkingSlot(String slotId, SlotType slotType , Floor floor) {
         this.slotId = slotId;
         this.slotType = slotType;
+        this.floor = floor;
         this.occupied = false;
     }
 
@@ -37,14 +39,18 @@ public class ParkingSlot {
         return vehicle;
     }
 
+    public Floor getFloor() {
+        return floor;
+    }
 
     /**
-     * Check if this slot can fit the given vehicle.
+     * Slot can hold exactly ONE vehicle.
+     * Size only defines compatibility.
      */
-
     public boolean canFit(Vehicle vehicle) {
-        if(occupied) return false;
-        return this.slotType.name().equals(vehicle.getType().name());
+        if (occupied) return false;
+
+        return vehicle.getType().getSize().ordinal() <= slotType.getSize().ordinal();
     }
 
     /**
@@ -52,11 +58,16 @@ public class ParkingSlot {
      */
 
     public void park(Vehicle vehicle) {
-       if(!canFit(vehicle)){
-           throw new IllegalArgumentException("Slot "+this.slotId+" can not fit vehicle type "+vehicle.getType());
-       }
-       this.vehicle = vehicle;
-       this.occupied = true;
+        if (occupied) {
+            throw new IllegalStateException("Slot already occupied: " + slotId);
+        }
+        if (!canFit(vehicle)) {
+            throw new IllegalArgumentException(
+                    "Slot " + slotId + " cannot fit vehicle type " + vehicle.getType()
+            );
+        }
+        this.vehicle = vehicle;
+        this.occupied = true;
     }
 
     /**
@@ -66,5 +77,6 @@ public class ParkingSlot {
         this.vehicle = null;
         this.occupied = false;
     }
+
 
 }

@@ -7,7 +7,17 @@ package com.souvanik.parkinglot.enums;
  * https://opensource.org/licenses/MIT
  */
 public enum SlotType {
-    BIKE,
-    CAR,
-    TRUCK
+    BIKE(SlotSize.SMALL),
+    CAR(SlotSize.MEDIUM),
+    TRUCK(SlotSize.LARGE);
+
+    private final SlotSize size;
+
+    SlotType(SlotSize size) {
+        this.size = size;
+    }
+
+    public SlotSize getSize() {
+        return size;
+    }
 }

@@ -8,6 +8,7 @@ import com.souvanik.parkinglot.strategy.CarPricing;
 import com.souvanik.parkinglot.strategy.PricingStrategy;
 import com.souvanik.parkinglot.strategy.TruckPricing;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
@@ -30,20 +31,29 @@ public class DefaultFeeCalculator implements FeeCalculator {
     }
 
     @Override
-    public double calculateFee(Ticket ticket, LocalDateTime exitTime) {
-        long minutes = Duration.between(ticket.getEntryTime(), exitTime).toMinutes();
+    public BigDecimal calculateFee(Ticket ticket, LocalDateTime exitTime) {
+        long minutes = Duration
+                .between(ticket.getEntryTime(), exitTime)
+                .toMinutes();
+
         long hours = (minutes / 60) + ((minutes % 60 == 0) ? 0 : 1);
-        if (hours == 0) hours = 1;
+        if (hours == 0) {
+            hours = 1;
+        }
 
         PricingStrategy strategy =
                 pricingMap.get(ticket.getVehicle().getType());
 
         if (strategy == null) {
-            throw new IllegalArgumentException("No pricing strategy for type: "
-                    + ticket.getVehicle().getType());
+            throw new IllegalArgumentException(
+                    "No pricing strategy for type: "
+                            + ticket.getVehicle().getType()
+            );
         }
 
-        return hours * strategy.pricePerHour();
+        return strategy
+                .pricePerHour()
+                .multiply(BigDecimal.valueOf(hours));
     }
 
 }

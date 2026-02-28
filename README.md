@@ -32,6 +32,7 @@ double exit) - JUnit tests - UML & Sequence diagrams
 
  Folder: `parkingLot/`\
  [View Project](./parkingLot)
+ [View Project](./Rate-Limiter)
 
 ------------------------------------------------------------------------
 

@@ -166,6 +166,22 @@ Example configuration:
 
 ------------------------------------------------------------------------
 
+## LLD Diagrams
+
+- Class Diagram:
+
+  <img width="979" height="925" alt="rate-limiter-domain-model" src="https://github.com/user-attachments/assets/76ff39a6-9fbe-43aa-8142-48c2cadefe99" />
+
+ 
+  
+- Sequence Diagram:
+
+<img width="701" height="514" alt="sequence-rate-limiter" src="https://github.com/user-attachments/assets/9f0be793-004e-4ae4-969a-638a8182f5ee" />
+
+  
+
+- ------------------------------------------------------------------------
+
 # Design Considerations
 
 This implementation was built with the following principles:
